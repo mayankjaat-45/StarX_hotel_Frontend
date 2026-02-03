@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 const rooms = [
   {
     title: "Deluxe Room",
-    img: "/room2.webp",
+    img: "/room1.webp",
     desc: "Elegant interiors with modern amenities and city views.",
   },
   {

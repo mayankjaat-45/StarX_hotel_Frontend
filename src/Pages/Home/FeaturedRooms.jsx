@@ -10,7 +10,7 @@ const rooms = [
   },
   {
     title: "Executive Suite",
-    img: "/room1.webp",
+    img: "/room.webp",
     desc: "Perfect for business travelers seeking premium comfort.",
   },
   {

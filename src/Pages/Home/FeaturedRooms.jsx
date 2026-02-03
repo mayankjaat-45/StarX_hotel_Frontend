@@ -2,24 +2,20 @@ import { Link } from "react-router-dom";
 import { lazy, memo } from "react";
 import { motion } from "framer-motion";
 
-import room1 from "/public/room1.webp";
-import room2 from "/public/room2.webp";
-import room3 from "/public/room3.webp";
-
 const rooms = [
   {
     title: "Deluxe Room",
-    img: room1,
+    img: "/room1.webp",
     desc: "Elegant interiors with modern amenities and city views.",
   },
   {
     title: "Executive Suite",
-    img: room2,
+    img: "/room2.webp",
     desc: "Perfect for business travelers seeking premium comfort.",
   },
   {
     title: "Presidential Suite",
-    img: room3,
+    img: "/room3.webp",
     desc: "Ultimate luxury with spacious lounge & premium services.",
   },
 ];

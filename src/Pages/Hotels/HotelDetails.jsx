@@ -67,7 +67,7 @@ const HotelDetails = () => {
           loading="eager"
           className="md:col-span-2 w-full h-full object-cover rounded-3xl"
         />
-      </div>
+              </div>
 
       {/* Header */}
       <div className="mt-6">

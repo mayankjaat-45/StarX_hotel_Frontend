@@ -1,12 +1,18 @@
 // lib/axios.js
 import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_API_URL;
+
+if (!BASE_URL) {
+  console.error("VITE_API_URL is not defined");
+}
+
 export const publicApi = axios.create({
-  baseURL: "http://76.13.176.202/api",
+  baseURL: BASE_URL,
 });
 
 const api = axios.create({
-  baseURL: "http://76.13.176.202/api",
+  baseURL: BASE_URL,
 });
 
 api.interceptors.request.use(

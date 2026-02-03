@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { CheckCircle, Hotel, Calendar, CreditCard } from "lucide-react";
+import { useMemo } from "react";
 
 const ConfirmPage = () => {
   const { state } = useLocation();
@@ -29,17 +30,45 @@ const ConfirmPage = () => {
 
   const isHourly = stay_mode === "HOURLY";
 
-  const checkInText = isHourly
-    ? `${check_in} at ${check_in_time}`
-    : new Date(check_in).toDateString();
-
   const formatDate = (date) => {
     if (!date) return "—";
     const d = new Date(date);
     return isNaN(d.getTime()) ? "—" : d.toDateString();
   };
 
-  const checkOutText = isHourly ? `${hours} hour(s)` : formatDate(check_out);
+  const getNowBasedHourlyTimes = (hours) => {
+    const now = new Date();
+
+    const checkIn = now.toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    const checkout = new Date(now);
+    checkout.setHours(checkout.getHours() + Number(hours || 0));
+
+    const checkOut = checkout.toLocaleString(undefined, {
+      year: "numeric",
+      month: "short",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+
+    return { checkIn, checkOut };
+  };
+
+  const hourlyTimes = useMemo(() => {
+    if (!isHourly) return null;
+    return getNowBasedHourlyTimes(hours);
+  }, [isHourly, hours]);
+
+  const checkInText = isHourly ? hourlyTimes.checkIn : formatDate(check_in);
+
+  const checkOutText = isHourly ? hourlyTimes.checkOut : formatDate(check_out);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -83,7 +112,7 @@ const ConfirmPage = () => {
 
           <DetailRow
             icon={<Calendar className="w-5 h-5 text-gray-500" />}
-            label={isHourly ? "Duration" : "Check-out"}
+            label="Check-out"
             value={checkOutText}
           />
 

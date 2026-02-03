@@ -33,9 +33,13 @@ const ConfirmPage = () => {
     ? `${check_in} at ${check_in_time}`
     : new Date(check_in).toDateString();
 
-  const checkOutText = isHourly
-    ? `${hours} hour(s)`
-    : new Date(check_out).toDateString();
+  const formatDate = (date) => {
+    if (!date) return "—";
+    const d = new Date(date);
+    return isNaN(d.getTime()) ? "—" : d.toDateString();
+  };
+
+  const checkOutText = isHourly ? `${hours} hour(s)` : formatDate(check_out);
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">

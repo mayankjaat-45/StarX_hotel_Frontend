@@ -90,6 +90,7 @@ const Booking = () => {
       payload.check_in = checkIn;
       payload.check_out = checkOut;
     } else {
+      payload.check_in = new Date().toISOString().split("T")[0]; // ✅ ADD THIS LINE
       payload.check_in_time = checkInTime;
       payload.hours = hours;
     }

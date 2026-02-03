@@ -19,10 +19,23 @@ const ConfirmPage = () => {
     room_type,
     payment_mode,
     payment_status,
+    stay_mode,
     check_in,
     check_out,
+    check_in_time,
+    hours,
     total_amount,
   } = state.data;
+
+  const isHourly = stay_mode === "HOURLY";
+
+  const checkInText = isHourly
+    ? `${check_in} at ${check_in_time}`
+    : new Date(check_in).toDateString();
+
+  const checkOutText = isHourly
+    ? `${hours} hour(s)`
+    : new Date(check_out).toDateString();
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -61,13 +74,13 @@ const ConfirmPage = () => {
           <DetailRow
             icon={<Calendar className="w-5 h-5 text-gray-500" />}
             label="Check-in"
-            value={new Date(check_in).toDateString()}
+            value={checkInText}
           />
 
           <DetailRow
             icon={<Calendar className="w-5 h-5 text-gray-500" />}
-            label="Check-out"
-            value={new Date(check_out).toDateString()}
+            label={isHourly ? "Duration" : "Check-out"}
+            value={checkOutText}
           />
 
           <DetailRow

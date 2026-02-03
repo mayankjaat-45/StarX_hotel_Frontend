@@ -134,7 +134,8 @@ const ConfirmPage = () => {
         <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-sm text-gray-600">Contact for Check Time</p>
           <p className="text-yellow-700 font-semibold">
-            Receiption : +91- 9540254389
+            Receiption :{" "}
+            <span className="text-white font-semibold">+91- 9540254389</span>
           </p>
         </div>
 

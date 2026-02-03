@@ -5,12 +5,12 @@ import { motion } from "framer-motion";
 const rooms = [
   {
     title: "Deluxe Room",
-    img: "/room1.webp",
+    img: "/room.webp",
     desc: "Elegant interiors with modern amenities and city views.",
   },
   {
     title: "Executive Suite",
-    img: "/room.webp",
+    img: "/room1.webp",
     desc: "Perfect for business travelers seeking premium comfort.",
   },
   {

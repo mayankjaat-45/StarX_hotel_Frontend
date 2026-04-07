@@ -93,7 +93,10 @@ const HotelDetails = () => {
 
         {hotel.one_hour_price && Number(hotel.one_hour_price) > 0 && (
           <p className="text-sm text-gray-500 mt-1">
-            Hourly stay available · ₹{hotel.one_hour_price} / hour
+            Hourly stay available ·{" "}
+            <span className="text-orange-500 font-bold">
+              ₹{hotel.one_hour_price} / hour
+            </span>
           </p>
         )}
       </div>
@@ -141,27 +144,25 @@ const HotelDetails = () => {
 
               <div className="text-left md:text-right">
                 <div className="flex flex-col md:items-end">
-                  {room.discount_price &&
-                  room.discount_price < room.price_per_night ? (
+                  {room.one_hour_price &&
+                  room.one_hour_price < room.price_per_night ? (
                     <>
                       <p className="text-sm text-gray-400 line-through">
                         ₹{room.price_per_night}
                       </p>
                       <p className="text-2xl font-extrabold text-orange-500">
-                        ₹{room.discount_price}
+                        ₹{room.one_hour_price}
                       </p>
-                      <span className="text-xs text-green-600 font-semibold">
-                        Save ₹{room.price_per_night - room.discount_price}
-                      </span>
+                  
                     </>
                   ) : (
                     <p className="text-2xl font-extrabold text-orange-500">
-                      ₹{room.price_per_night}
+                      ₹{room.one_hour_price}
                     </p>
                   )}
                 </div>
 
-                <p className="text-sm text-gray-500">per night</p>
+                <p className="text-sm text-gray-500">per hour</p>
 
                 {room.hourly_price && (
                   <p className="text-xs text-gray-500 mt-1">

@@ -60,22 +60,17 @@ const RoomDetail = () => {
 
   /* TOTAL PRICE */
   const getHourlyPrice = (room, hours) => {
-    if (!room) return 0;
+    const base = Number(room?.price_per_night || 0);
 
-    switch (hours) {
-      case 1:
-        return Number(room.one_hour_price || 0);
-      case 2:
-        return Number(room.two_hour_price || 0);
-      case 3:
-        return Number(room.three_hour_price || 0);
-      case 4:
-        return Number(room.four_hour_price || 0);
-      case 12:
-        return Number(room.twelve_hour_price || 0);
-      default:
-        return Number(room.one_hour_price || 0);
-    }
+    const priceMap = {
+      1: Number(room?.one_hour_price) || base * 0.2,
+      2: Number(room?.two_hour_price) || base * 0.35,
+      3: Number(room?.three_hour_price) || base * 0.5,
+      4: Number(room?.four_hour_price) || base * 0.65,
+      12: Number(room?.twelve_hour_price) || base * 0.9,
+    };
+
+    return Number(priceMap[hours]) || 0;
   };
   const totalAmount = useMemo(() => {
     if (!room || !hotel) return 0;
@@ -230,7 +225,7 @@ const RoomDetail = () => {
               >
                 {hourOptions.map((h) => (
                   <option key={h} value={h}>
-                    {h} Hr - ₹{getHourlyPrice(room, h)}
+                    {h} Hr - ₹{getHourlyPrice(room, h) || 0}
                   </option>
                 ))}
               </select>
@@ -239,7 +234,7 @@ const RoomDetail = () => {
 
           <div className="flex justify-between font-bold text-orange-600 text-lg">
             <span>Total</span>
-            <span>₹{totalAmount}</span>
+            <span>₹{totalAmount || 0}</span>
           </div>
 
           <button

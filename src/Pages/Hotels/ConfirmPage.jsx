@@ -28,6 +28,11 @@ const ConfirmPage = () => {
     total_amount,
   } = state.data;
 
+  const reception_number =
+    state.data.reception_number ||
+    state.data.receptionNumber ||
+    state.data.reception_no;
+
   const isHourly = stay_mode === "HOURLY";
 
   const formatDate = (date) => {
@@ -36,40 +41,29 @@ const ConfirmPage = () => {
     return isNaN(d.getTime()) ? "—" : d.toDateString();
   };
 
-  const getNowBasedHourlyTimes = (hours) => {
-    const now = new Date();
+  const getHourlyTimes = (date, time, hours) => {
+    if (!date || !time) return { checkIn: "—", checkOut: "—" };
 
-    const checkIn = now.toLocaleString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    const checkInDateTime = new Date(`${date}T${time}`);
 
-    const checkout = new Date(now);
-    checkout.setHours(checkout.getHours() + Number(hours || 0));
+    const checkOutDateTime = new Date(checkInDateTime);
+    checkOutDateTime.setHours(checkOutDateTime.getHours() + Number(hours || 0));
 
-    const checkOut = checkout.toLocaleString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    return { checkIn, checkOut };
+    return {
+      checkIn: checkInDateTime.toLocaleString(),
+      checkOut: checkOutDateTime.toLocaleString(),
+    };
   };
 
   const hourlyTimes = useMemo(() => {
     if (!isHourly) return null;
-    return getNowBasedHourlyTimes(hours);
-  }, [isHourly, hours]);
+    return getHourlyTimes(check_in, check_in_time, hours);
+  }, [isHourly, check_in, check_in_time, hours]);
 
   const checkInText = isHourly ? hourlyTimes.checkIn : formatDate(check_in);
 
   const checkOutText = isHourly ? hourlyTimes.checkOut : formatDate(check_out);
-
+  console.log("STATE DATA:", state.data);
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-xl w-full bg-white rounded-2xl shadow-lg p-6">
@@ -127,16 +121,25 @@ const ConfirmPage = () => {
         <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-sm text-gray-600">Payment Status</p>
           <p className="text-yellow-700 font-semibold">
-            Payment Pending – Pay at Hotel
+            {payment_status === "PENDING"
+              ? "Payment Pending – Pay at Hotel"
+              : "Payment Completed"}
           </p>
         </div>
 
         <div className="mt-6 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-sm text-gray-600">Contact for Check Time</p>
-          <p className="text-yellow-700 font-semibold">
-            Receiption :{" "}
-            <span className="text-white font-semibold">+91- 9540254389</span>
-          </p>
+
+          {reception_number ? (
+            <a
+              href={`tel:${reception_number}`}
+              className="text-blue-600 font-semibold underline"
+            >
+              {reception_number}
+            </a>
+          ) : (
+            <p className="text-gray-500">Not available</p>
+          )}
         </div>
 
         {/* TOTAL AMOUNT */}

@@ -17,7 +17,7 @@ export const BookingProvider = ({ children }) => {
     setBooking({
       hotel,
       room,
-
+      nights: 1,
       stayMode: "NIGHT", // NIGHT | HOURLY
       checkIn: "",
       checkOut: "",
@@ -40,11 +40,32 @@ export const BookingProvider = ({ children }) => {
       const room = updates.room ?? prev.room;
       const hours = updates.hours ?? prev.hours;
 
+      /* ✅ HOURLY PRICE FIX */
+      const getHourlyPrice = (room, hours) => {
+        if (!room) return 0;
+
+        switch (hours) {
+          case 1:
+            return Number(room.one_hour_price || 0);
+          case 2:
+            return Number(room.two_hour_price || 0);
+          case 3:
+            return Number(room.three_hour_price || 0);
+          case 4:
+            return Number(room.four_hour_price || 0);
+          case 12:
+            return Number(room.twelve_hour_price || 0);
+          default:
+            return Number(room.one_hour_price || 0);
+        }
+      };
+      const nights = updates.nights ?? prev.nights ?? 1;
+      /* ✅ TOTAL PRICE */
+
       const totalPrice =
         stayMode === "HOURLY"
-          ? (room?.price_per_hour || 0) * (hours || 1)
-          : room?.price_per_night || 0;
-
+          ? getHourlyPrice(room, hours)
+          : Number(room?.price_per_night || 0) * nights;
       return {
         ...prev,
         ...updates,

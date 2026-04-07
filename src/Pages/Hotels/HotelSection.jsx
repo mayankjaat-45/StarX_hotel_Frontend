@@ -36,9 +36,9 @@ const HotelSection = () => {
           h.is_active === true ||
           h.is_active === 1 ||
           h.is_active === "true" ||
-          h.is_active === undefined, // backend not sending it
+          h.is_active === undefined,
       )
-      .sort((a, b) => (a.price_per_night || 0) - (b.price_per_night || 0));
+      .sort((a, b) => (a.price_full_day || 0) - (b.price_full_day || 0));
   }, [hotels]);
 
   const skeletons = useMemo(() => Array.from({ length: 6 }), []);

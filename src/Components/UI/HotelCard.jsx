@@ -5,13 +5,23 @@ const HotelCard = memo(({ hotel }) => {
   const hotelImage = hotel.hotel_images?.[0]?.image || "/placeholder.webp"; // local placeholder is faster
 
   // Memoized minimum price (safe)
-  const minRoomPrice = useMemo(() => {
-    if (!hotel.rooms?.length) return null;
+  const minPrice = useMemo(() => {
+    if (hotel.one_hour_price) return Number(hotel.one_hour_price);
 
-    return Math.min(
-      ...hotel.rooms.map((room) => room.discount_price ?? room.price_per_night),
-    );
-  }, [hotel.rooms]);
+    if (hotel.rooms?.length) {
+      return Math.min(
+        ...hotel.rooms.map((room) =>
+          Number(
+            room.discount_price && room.discount_price < room.price_per_night
+              ? room.discount_price
+              : room.price_per_hour || room.price_per_night || 0,
+          ),
+        ),
+      );
+    }
+
+    return Number(hotel.price_full_day || 0);
+  }, [hotel]);
 
   return (
     <article className="group bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-transform duration-300 hover:-translate-y-1">
@@ -63,11 +73,11 @@ const HotelCard = memo(({ hotel }) => {
             {hotel.total_review || 0} reviews
           </p>
 
-          {minRoomPrice && (
+          {minPrice > 0 && (
             <div className="text-right">
-              <p className="text-xs text-gray-400">Starting from</p>
-              <p className="text-lg font-bold text-orange-500">
-                ₹{minRoomPrice}
+              <p className="text-xs text-gray-600">Starting from</p>
+              <p className="text-md text-orange-400 font-bold">
+                {hotel.one_hour_price}
               </p>
             </div>
           )}

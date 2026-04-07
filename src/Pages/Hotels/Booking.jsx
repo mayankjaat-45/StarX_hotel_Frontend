@@ -36,6 +36,25 @@ const Booking = () => {
      DERIVED PRICING (SOURCE OF TRUTH)
   ----------------------------- */
 
+  const getHourlyPrice = (room, hours) => {
+    if (!room) return 0;
+
+    switch (hours) {
+      case 1:
+        return Number(room.one_hour_price || 0);
+      case 2:
+        return Number(room.two_hour_price || 0);
+      case 3:
+        return Number(room.three_hour_price || 0);
+      case 4:
+        return Number(room.four_hour_price || 0);
+      case 12:
+        return Number(room.twelve_hour_price || 0);
+      default:
+        return Number(room.one_hour_price || 0);
+    }
+  };
+
   const nights = useMemo(() => {
     if (stayMode !== "NIGHT" || !checkOut) return 0;
     return Math.max(
@@ -48,16 +67,21 @@ const Booking = () => {
 
   const finalNightPrice =
     room.discount_price && room.discount_price < room.price_per_night
-      ? room.discount_price
-      : room.price_per_night;
+      ? Number(room.discount_price)
+      : Number(room.price_per_night || 0);
 
   const calculatedNightTotal = useMemo(() => {
-    if (stayMode !== "NIGHT") return totalPrice;
+    if (stayMode !== "NIGHT") return 0;
     return finalNightPrice * nights;
-  }, [stayMode, finalNightPrice, nights, totalPrice]);
+  }, [stayMode, finalNightPrice, nights]);
+
+  const calculatedHourlyTotal = useMemo(() => {
+    if (stayMode !== "HOURLY") return 0;
+    return getHourlyPrice(room, hours);
+  }, [stayMode, room, hours]);
 
   const finalPayableAmount =
-    stayMode === "NIGHT" ? calculatedNightTotal : totalPrice;
+    stayMode === "NIGHT" ? calculatedNightTotal : calculatedHourlyTotal;
 
   /* ----------------------------------
      PAY AT HOTEL (ACTIVE)
@@ -90,19 +114,28 @@ const Booking = () => {
       payload.check_in = checkIn;
       payload.check_out = checkOut;
     } else {
-      payload.check_in = new Date().toISOString().split("T")[0]; // ✅ ADD THIS LINE
+      payload.check_in = checkIn;
       payload.check_in_time = checkInTime;
       payload.hours = hours;
     }
+    if (stayMode === "NIGHT" && (!checkIn || !checkOut)) {
+      toast.error("Select check-in and check-out dates");
+      return;
+    }
 
+    if (stayMode === "HOURLY" && (!checkInTime || !hours)) {
+      toast.error("Select time and duration");
+      return;
+    }
     try {
       const res = await api.post("/bookings/pay-at-hotel/", payload);
 
       toast.success("Room reserved. Pay at hotel 🏨");
+      console.log("API RESPONSE:", res.data);
       resetBooking();
-
+      console.log("API RESPONSE:", res.data);
       navigate("/confirmation", {
-        state: res.data,
+        state: { data: res.data.data }, // ✅ FIX
       });
     } catch (err) {
       console.error(err.response?.data || err);
@@ -226,9 +259,9 @@ const Booking = () => {
         ) : (
           <div className="flex justify-between text-sm mb-3">
             <span className="text-gray-600">
-              ₹{room.price_per_hour} × {hours} hour{hours > 1 && "s"}
+              ₹{getHourlyPrice(room, hours)} for {hours} hour{hours > 1 && "s"}
             </span>
-            <span className="font-medium">₹{totalPrice}</span>
+            <span className="font-medium">₹{calculatedHourlyTotal}</span>
           </div>
         )}
 

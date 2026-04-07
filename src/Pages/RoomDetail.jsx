@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-
 import { useBooking } from "../Context/BookingContext";
 import { publicApi } from "../lib/axios";
 
@@ -51,7 +50,6 @@ const RoomDetail = () => {
   }, [hotelId, roomId]);
 
   const images = room?.room_images?.map((i) => i.image) || [];
-
   /* NIGHTS CALC */
   const nights = useMemo(() => {
     if (!checkOutDate) return 0;
@@ -61,23 +59,41 @@ const RoomDetail = () => {
   }, [checkInDate, checkOutDate]);
 
   /* TOTAL PRICE */
-  const totalAmount = useMemo(() => {
+  const getHourlyPrice = (room, hours) => {
     if (!room) return 0;
 
-    // Hourly booking (no discount logic here)
+    switch (hours) {
+      case 1:
+        return Number(room.one_hour_price || 0);
+      case 2:
+        return Number(room.two_hour_price || 0);
+      case 3:
+        return Number(room.three_hour_price || 0);
+      case 4:
+        return Number(room.four_hour_price || 0);
+      case 12:
+        return Number(room.twelve_hour_price || 0);
+      default:
+        return Number(room.one_hour_price || 0);
+    }
+  };
+  const totalAmount = useMemo(() => {
+    if (!room || !hotel) return 0;
+
+    // ✅ HOURLY (use hotel pricing)
     if (bookingType === "hour") {
-      return Number((hours * room.price_per_hour).toFixed(2));
+      return getHourlyPrice(room, hours);
     }
 
-    // Night booking (apply discount if lower)
+    // ✅ NIGHT (room pricing)
+    const pricePerNight = Number(room.price_per_night || 0);
+    const discount = Number(room.discount_price || 0);
+
     const finalNightPrice =
-      room.discount_price && room.discount_price < room.price_per_night
-        ? room.discount_price
-        : room.price_per_night;
+      discount > 0 && discount < pricePerNight ? discount : pricePerNight;
 
     return nights * finalNightPrice;
-  }, [bookingType, hours, nights, room]);
-
+  }, [bookingType, hours, nights, room, hotel]);
   /* RESERVE */
   const handleReserve = () => {
     if (bookingType === "night" && !checkOutDate) {
@@ -96,6 +112,11 @@ const RoomDetail = () => {
       checkInTime: bookingType === "hour" ? checkInTime : null,
       hours: bookingType === "hour" ? hours : null,
       totalPrice: totalAmount,
+
+      // 🔥 ADD THESE
+      roomId: room.room_id,
+      hotelId: hotel.hotel_id,
+      roomType: room.room_type,
     });
 
     // ✅ Step 3: navigate
@@ -105,7 +126,7 @@ const RoomDetail = () => {
   if (loading) return <div className="p-10">Loading…</div>;
 
   /* HOURLY OPTIONS */
-  const hourOptions = Array.from({ length: 3 }, (_, i) => (i + 1) * 2);
+  const hourOptions = [1, 2, 3, 4, 12];
   return (
     <>
       <div className="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-[1fr_380px] gap-6">
@@ -128,15 +149,11 @@ const RoomDetail = () => {
 
             <div className="hidden lg:grid grid-cols-4 grid-rows-2 gap-2">
               <img
-                src={images[0]}
+                src={images[0] || "/placeholder.webp"}
                 className="col-span-2 row-span-2 h-90 w-full object-cover rounded-l-2xl"
               />
               {images.slice(1, 5).map((img, i) => (
-                <img
-                  key={i}
-                  src={img}
-                  className="h-44.5 w-full object-cover"
-                />
+                <img key={i} src={img} className="h-44.5 w-full object-cover" />
               ))}
             </div>
           </div>
@@ -213,7 +230,7 @@ const RoomDetail = () => {
               >
                 {hourOptions.map((h) => (
                   <option key={h} value={h}>
-                    {h} hour{h > 1 && "s"}
+                    {h} Hr - ₹{getHourlyPrice(room, h)}
                   </option>
                 ))}
               </select>

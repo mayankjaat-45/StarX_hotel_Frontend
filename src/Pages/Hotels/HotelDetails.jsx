@@ -91,9 +91,9 @@ const HotelDetails = () => {
           <span className="text-sm text-gray-500 font-normal"> / night</span>
         </p>
 
-        {hotel.price_per_hour && (
+        {hotel.one_hour_price && Number(hotel.one_hour_price) > 0 && (
           <p className="text-sm text-gray-500 mt-1">
-            Hourly stay available · ₹{hotel.price_per_hour} / hour
+            Hourly stay available · ₹{hotel.one_hour_price} / hour
           </p>
         )}
       </div>
